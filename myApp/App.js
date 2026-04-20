@@ -26,7 +26,8 @@ import { ProductDetailScreen } from './screens/ProductDetailScreen';
 import { FilterScreen } from './screens/FilterScreen';
 import { CartScreen } from './screens/CartScreen';
 import { FavoriteScreen } from './screens/FavoriteScreen';
-import { AccountScreen } from './screens/AccountScreen'; // Đảm bảo bạn đã tạo file này
+import { AccountScreen } from './screens/AccountScreen'; 
+import { OrderHistoryScreen } from './screens/OrderHistoryScreen'; // Đã thêm dòng này
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -70,7 +71,6 @@ function MainTabNavigator() {
 const RootNavigator = () => {
   const { userToken, isLoading } = useAuth();
 
-  // Hiển thị màn hình chờ khi đang kiểm tra bộ nhớ máy
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#53B175' }}>
@@ -82,8 +82,7 @@ const RootNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {userToken == null ? (
-        // LUỒNG CHƯA ĐĂNG NHẬP
-        <>
+        <Stack.Group>
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           <Stack.Screen name="SignIn" component={SignInScreen} />
@@ -92,15 +91,15 @@ const RootNavigator = () => {
           <Stack.Screen name="Location" component={LocationScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
-        </>
+        </Stack.Group>
       ) : (
-        // LUỒNG ĐÃ ĐĂNG NHẬP
-        <>
+        <Stack.Group>
           <Stack.Screen name="Home" component={MainTabNavigator} />
           <Stack.Screen name="Beverages" component={BeveragesScreen} />
           <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
           <Stack.Screen name="Filters" component={FilterScreen} options={{ presentation: 'modal' }} />
-        </>
+          <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} />
+        </Stack.Group>
       )}
     </Stack.Navigator>
   );

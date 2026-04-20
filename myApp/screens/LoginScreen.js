@@ -1,31 +1,33 @@
 // screens/LoginScreen.js
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { useAuth } from '../AuthContext';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen() {
   const { login } = useAuth();
+  const [email, setEmail] = useState(''); // State lưu email người dùng gõ
 
   const handleLogin = () => {
-    // Giả lập tạo Token và gọi hàm login để lưu vào AsyncStorage
-    const fakeToken = "user_token_" + Date.now(); 
-    login(fakeToken); 
+    // Nếu không nhập gì, mặc định là Guest
+    const userEmail = email.trim() === '' ? 'Guest' : email;
+    login(userEmail); 
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={{ flex: 1, backgroundColor: '#fff' }} 
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#fff' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        
         <Image source={require('./../assets/carrot-color-icon.png')} style={styles.logo} />
-        
         <Text style={styles.title}>Loging</Text>
         <Text style={styles.subtitle}>Enter your emails and password</Text>
 
         <Text style={styles.label}>Email</Text>
-        <TextInput style={styles.input} placeholder="Imshuvo97@gmail.com" />
+        <TextInput 
+          style={styles.input} 
+          placeholder="Imshuvo97@gmail.com" 
+          value={email}
+          onChangeText={setEmail} // Lưu chữ đang gõ vào biến email
+          autoCapitalize="none"
+        />
 
         <Text style={styles.label}>Password</Text>
         <View style={styles.passwordContainer}>
@@ -33,29 +35,22 @@ export default function LoginScreen({ navigation }) {
           <Image source={require('./../assets/eye-icon.png')} style={styles.eyeIcon} />
         </View>
 
-        <TouchableOpacity style={styles.forgotView}>
-          <Text style={styles.forgotText}>Forgot Password?</Text>
-        </TouchableOpacity>
+        <TouchableOpacity style={styles.forgotView}><Text style={styles.forgotText}>Forgot Password?</Text></TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={handleLogin} 
-        >
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
 
         <View style={styles.signupView}>
           <Text style={styles.signupText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.signupLink}>Signup</Text>
-          </TouchableOpacity>
+          <TouchableOpacity><Text style={styles.signupLink}>Signup</Text></TouchableOpacity>
         </View>
-
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
+// ... Copy nguyên phần styles cũ của LoginScreen vào đây ...
 const styles = StyleSheet.create({
   container: { flexGrow: 1, padding: 20, justifyContent: 'center' },
   logo: { width: 40, height: 40, alignSelf: 'center', marginBottom: 50 },
