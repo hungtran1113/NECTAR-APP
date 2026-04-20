@@ -9,7 +9,6 @@ export const CartProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [isStorageLoaded, setIsStorageLoaded] = useState(false);
 
-  // Lấy dữ liệu Cart và Orders từ Storage khi mở app
   useEffect(() => {
     const loadData = async () => {
       const savedCart = await storageService.getData(storageKeys.CART);
@@ -21,21 +20,18 @@ export const CartProvider = ({ children }) => {
     loadData();
   }, []);
 
-  // Tự động lưu Cart vào Storage mỗi khi cartItems thay đổi
   useEffect(() => {
     if (isStorageLoaded) {
       storageService.saveData(storageKeys.CART, cartItems);
     }
   }, [cartItems, isStorageLoaded]);
 
-  // Tự động lưu Orders vào Storage mỗi khi orders thay đổi
   useEffect(() => {
     if (isStorageLoaded) {
       storageService.saveData(storageKeys.ORDERS, orders);
     }
   }, [orders, isStorageLoaded]);
 
-  // --- CÁC HÀM XỬ LÝ GIỎ HÀNG ---
   const addToCart = (product, quantity) => {
     setCartItems((prev) => {
       const existing = prev.find(item => item.id === product.id);
@@ -55,24 +51,26 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => setCartItems([]);
 
-  // --- XỬ LÝ ĐẶT HÀNG (CHECKOUT) ---
   const checkout = (totalAmount) => {
     if (cartItems.length === 0) return false;
-    
     const newOrder = {
       id: Date.now().toString(),
       items: [...cartItems],
       total: totalAmount,
       date: new Date().toLocaleString(),
     };
-
-    setOrders([newOrder, ...orders]); // Thêm đơn mới lên đầu
-    clearCart(); // Đặt hàng xong thì xóa giỏ
+    setOrders([newOrder, ...orders]);
+    clearCart();
     return true;
   };
 
+  // --- HÀM MỚI: XÓA ĐƠN HÀNG ---
+  const removeOrder = (orderId) => {
+    setOrders(prev => prev.filter(order => order.id !== orderId));
+  };
+
   return (
-    <CartContext.Provider value={{ cartItems, orders, addToCart, removeFromCart, updateQuantity, checkout }}>
+    <CartContext.Provider value={{ cartItems, orders, addToCart, removeFromCart, updateQuantity, checkout, removeOrder }}>
       {children}
     </CartContext.Provider>
   );

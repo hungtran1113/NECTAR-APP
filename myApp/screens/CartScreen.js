@@ -6,46 +6,56 @@ import { useCart } from '../CartContext';
 export const CartScreen = ({ navigation }) => {
   const { cartItems, removeFromCart, updateQuantity, checkout } = useCart();
 
-  // Tính tổng tiền trong giỏ hàng
+  // Tính TỔNG TIỀN của toàn bộ giỏ hàng (cập nhật realtime)
   const totalAmount = cartItems.reduce((sum, item) => {
     const priceValue = parseFloat(item.price.replace('$', ''));
     return sum + (priceValue * item.qty);
   }, 0).toFixed(2);
 
-  // Xử lý khi ấn nút Thanh toán
   const handleCheckout = () => {
     if (checkout(`$${totalAmount}`)) {
       Alert.alert("Thành công", "Đơn hàng đã được đặt thành công!");
-      navigation.navigate('Account'); // Tự động chuyển sang trang lịch sử đơn hàng
+      navigation.navigate('Account'); 
     }
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Image source={item.image || {uri: item.img}} style={styles.itemImage} resizeMode="contain" />
-      <View style={styles.itemInfo}>
-        <View style={styles.titleRow}>
-          <Text style={styles.itemName}>{item.name}</Text>
-          <TouchableOpacity onPress={() => removeFromCart(item.id)}>
-            <Text style={{ fontSize: 15, color: '#B3B3B3' }}>✕</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.itemDesc}>{item.desc}</Text>
-        <View style={styles.qtyPriceRow}>
-          <View style={styles.qtyControl}>
-            <TouchableOpacity style={styles.qtyBtn} onPress={() => updateQuantity(item.id, item.qty - 1)}>
-              <Text style={styles.qtyBtnText}>-</Text>
-            </TouchableOpacity>
-            <Text style={styles.qtyText}>{item.qty}</Text>
-            <TouchableOpacity style={[styles.qtyBtn, { borderColor: '#53B175' }]} onPress={() => updateQuantity(item.id, item.qty + 1)}>
-              <Text style={[styles.qtyBtnText, { color: '#53B175' }]}>+</Text>
+  const renderItem = ({ item }) => {
+    // TÍNH GIÁ TIỀN RIÊNG CHO TỪNG MÓN (Đơn giá x Số lượng - cập nhật realtime)
+    const unitPrice = parseFloat(item.price.replace('$', ''));
+    const itemTotalPrice = (unitPrice * item.qty).toFixed(2);
+
+    return (
+      <View style={styles.itemContainer}>
+        <Image source={item.image || {uri: item.img}} style={styles.itemImage} resizeMode="contain" />
+        <View style={styles.itemInfo}>
+          <View style={styles.titleRow}>
+            <Text style={styles.itemName}>{item.name}</Text>
+            <TouchableOpacity onPress={() => removeFromCart(item.id)}>
+              <Text style={{ fontSize: 15, color: '#B3B3B3' }}>✕</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.itemPrice}>{item.price}</Text>
+          <Text style={styles.itemDesc}>{item.desc}</Text>
+          <View style={styles.qtyPriceRow}>
+            <View style={styles.qtyControl}>
+              <TouchableOpacity style={styles.qtyBtn} onPress={() => updateQuantity(item.id, item.qty - 1)}>
+                <Text style={styles.qtyBtnText}>-</Text>
+              </TouchableOpacity>
+              
+              <Text style={styles.qtyText}>{item.qty}</Text>
+              
+              <TouchableOpacity style={[styles.qtyBtn, { borderColor: '#53B175' }]} onPress={() => updateQuantity(item.id, item.qty + 1)}>
+                <Text style={[styles.qtyBtnText, { color: '#53B175' }]}>+</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Hiển thị giá tiền đã nhân với số lượng */}
+            <Text style={styles.itemPrice}>${itemTotalPrice}</Text>
+            
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>

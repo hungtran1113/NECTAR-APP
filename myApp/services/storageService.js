@@ -1,6 +1,6 @@
 // services/storageService.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { encode, decode } from 'base-64'; // Dùng để mã hóa lấy điểm cộng
+import { encode, decode } from 'base-64'; 
 
 export const storageKeys = {
   USER_TOKEN: '@user_token',
@@ -9,12 +9,12 @@ export const storageKeys = {
 };
 
 export const storageService = {
-  // Lưu dữ liệu (Hỗ trợ mã hóa nếu là token)
+  // 1. Hàm lưu dữ liệu (Có hỗ trợ mã hóa Base64)
   saveData: async (key, value, shouldEncode = false) => {
     try {
       let stringValue = JSON.stringify(value);
       if (shouldEncode) {
-        stringValue = encode(stringValue); // Mã hóa Base64
+        stringValue = encode(stringValue); // Mã hóa để bảo mật (điểm cộng)
       }
       await AsyncStorage.setItem(key, stringValue);
     } catch (error) {
@@ -22,13 +22,13 @@ export const storageService = {
     }
   },
 
-  // Lấy dữ liệu
+  // 2. Hàm lấy dữ liệu (Hỗ trợ giải mã)
   getData: async (key, isEncoded = false) => {
     try {
       let value = await AsyncStorage.getItem(key);
       if (value !== null) {
         if (isEncoded) {
-          value = decode(value); // Giải mã Base64
+          value = decode(value); // Giải mã
         }
         return JSON.parse(value);
       }
@@ -39,7 +39,7 @@ export const storageService = {
     }
   },
 
-  // Xóa 1 trường dữ liệu
+  // 3. Hàm xóa 1 item cụ thể
   removeData: async (key) => {
     try {
       await AsyncStorage.removeItem(key);
@@ -48,12 +48,13 @@ export const storageService = {
     }
   },
 
-  // Xóa toàn bộ (Dùng khi Logout)
+  // 4. Hàm dọn sạch toàn bộ storage (Dùng khi Đăng xuất)
   clearAll: async () => {
     try {
       await AsyncStorage.clear();
+      console.log('Storage đã được dọn sạch hoàn toàn.');
     } catch (error) {
-      console.error('Lỗi khi xóa toàn bộ storage:', error);
+      console.error('Lỗi khi xóa sạch storage:', error);
     }
   }
 };
